@@ -8,22 +8,38 @@
   * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
   :root{
     --orange:#F97316; --pink:#EC4899; --ink:#2b2118; --sub:#8a7a6b;
-    --cream:#FFF8F3; --card:#FFFFFF; --good:#16a34a; --bad:#dc2626; --line:rgba(249,115,22,.28);
+    --card:#FFFFFF; --good:#16a34a; --bad:#dc2626; --line:rgba(249,115,22,.28);
   }
   body{ font-family:'Segoe UI','PingFang SC','Microsoft YaHei',sans-serif; color:var(--ink);
-    background:linear-gradient(180deg,#fff1e4 0%,#ffe8f1 55%,#fff6ec 100%); min-height:100vh; padding-bottom:70px; }
-  .wrap{ max-width:860px; margin:0 auto; padding:16px 14px 60px; }
+    background:linear-gradient(180deg,#fff1e4 0%,#ffe8f1 55%,#fff6ec 100%); min-height:100vh; padding-bottom:60px; }
+  .wrap{ max-width:860px; margin:0 auto; padding:16px 14px 50px; }
+  .screen{ display:none; }
+  .screen.on{ display:block; }
+
   header{ text-align:center; padding:16px 8px 6px; }
   .badge{ display:inline-block; background:linear-gradient(135deg,var(--orange),var(--pink)); color:#fff;
     font-size:12px; font-weight:700; letter-spacing:2px; border-radius:999px; padding:6px 16px; }
   h1{ font-size:24px; margin-top:12px; line-height:1.3; }
   .cn{ color:var(--sub); font-size:14px; margin-top:6px; }
-  .steps{ display:flex; gap:8px; justify-content:center; margin:14px 0 4px; flex-wrap:wrap; }
-  .tab{ font-size:13px; font-weight:700; border-radius:999px; padding:7px 15px; background:#fff;
-    border:1.5px solid var(--line); color:var(--sub); cursor:pointer; user-select:none; }
-  .tab:active{ transform:scale(.95); }
-  .tab.on{ background:linear-gradient(135deg,var(--orange),var(--pink)); color:#fff; border-color:transparent; }
-  .tab .st{ display:none; }
+
+  /* home cards */
+  .homecards{ display:flex; flex-direction:column; gap:16px; margin-top:22px; }
+  .hcard{ background:var(--card); border-radius:20px; padding:22px 20px; display:flex; align-items:center; gap:16px;
+    border:1px solid var(--line); box-shadow:0 6px 24px rgba(249,115,22,.10); cursor:pointer; transition:transform .15s; }
+  .hcard:active{ transform:scale(.97); }
+  .hcard .ic{ width:64px; height:64px; border-radius:18px; display:flex; align-items:center; justify-content:center; font-size:30px; flex:none; }
+  .hcard:nth-child(1) .ic{ background:rgba(249,115,22,.12); }
+  .hcard:nth-child(2) .ic{ background:rgba(236,72,153,.12); }
+  .hcard h3{ font-size:18px; }
+  .hcard p{ font-size:13.5px; color:var(--sub); margin-top:4px; line-height:1.5; }
+  .hcard .go{ margin-left:auto; color:var(--orange); font-weight:900; font-size:20px; flex:none; }
+  .lvltag{ display:inline-block; font-size:11px; font-weight:800; letter-spacing:1px; border-radius:999px; padding:2px 10px; margin-bottom:4px; }
+  .lvl1{ background:rgba(249,115,22,.12); color:var(--orange); }
+  .lvl2{ background:rgba(236,72,153,.12); color:var(--pink); }
+
+  .backbtn{ display:inline-flex; align-items:center; gap:6px; background:#fff; border:1.5px solid var(--line);
+    color:var(--orange); font-size:13.5px; font-weight:800; border-radius:999px; padding:8px 16px; cursor:pointer; margin-bottom:6px; }
+  .backbtn:active{ transform:scale(.95); }
 
   .panel{ background:var(--card); border-radius:18px; padding:18px 16px; margin-top:14px;
     box-shadow:0 6px 24px rgba(249,115,22,.10); border:1px solid var(--line); }
@@ -51,7 +67,11 @@
   .progress{ margin-top:12px; font-size:14px; font-weight:800; color:var(--sub); }
   .progress b{ color:var(--good); }
 
-  .seg{ border:1px solid var(--line); border-radius:14px; padding:14px; margin-top:12px; background:#fffdfb; scroll-margin-top:12px; }
+  .warn{ display:none; margin-top:12px; background:#fff7e0; border:1.5px solid #f5c451; border-radius:12px;
+    padding:12px 14px; font-size:13.5px; line-height:1.7; color:#8a6d1a; font-weight:700; }
+  .warn.show{ display:block; }
+
+  .seg{ border:1px solid var(--line); border-radius:14px; padding:14px; margin-top:12px; background:#fffdfb; }
   .seg .stext{ font-size:16px; line-height:1.95; color:#3d3227; }
   .stext b{ color:var(--orange); }
   .stext miss{ background:#ffe1de; color:var(--bad); border-radius:4px; padding:0 2px; text-decoration:underline wavy var(--bad); }
@@ -60,6 +80,7 @@
   .btn-play{ background:rgba(249,115,22,.1); color:var(--orange); border:1.5px solid var(--line); }
   .btn-rec{ background:linear-gradient(135deg,var(--orange),var(--pink)); color:#fff; }
   .btn-rec.recording{ animation:pulse 1s infinite; }
+  .btn-rec:disabled{ opacity:.4; }
   @keyframes pulse{ 50%{ opacity:.55; } }
   .sresult{ display:none; margin-top:10px; font-size:14px; border-radius:10px; padding:9px 12px; line-height:1.7; }
   .sresult.show{ display:block; }
@@ -83,54 +104,78 @@
 </head>
 <body>
 <div class="wrap">
-  <header>
-    <span class="badge">FTP ENGLISH · VIDEO CHALLENGE</span>
-    <h1>🎤 Live Streaming in Haikou<br>Video Summary Challenge</h1>
-    <p class="cn">Watch · Fill in the blanks · Read aloud · Get your AI score</p>
-    <div class="steps">
-      <span class="tab on" data-go="panel1" onclick="goTo('panel1',this)">1 · Fill in the Blanks</span>
-      <span class="tab" data-go="seg0" onclick="goTo('seg0',this)">2 · Read S1</span>
-      <span class="tab" data-go="seg1" onclick="goTo('seg1',this)">3 · Read S2</span>
-      <span class="tab" data-go="seg2" onclick="goTo('seg2',this)">4 · Read S3</span>
-    </div>
-  </header>
 
-  <!-- LEVEL 1 · BLANKS -->
-  <div class="panel" id="panel1">
-    <div class="ptitle"><span class="n">LEVEL 1</span>Fill in the Blanks</div>
-    <p class="tip">Complete the video summary. Tap a word from the word bank or type it in — <b>wrong answers turn red instantly!</b> 💡 shows hints.</p>
-    <div class="wordbank" id="bank"></div>
-    <div class="story" id="story"></div>
-    <div class="progress" id="progress">Correct: <b>0</b> / 10</div>
-    <div class="btnrow">
-      <button class="btn-ghost" onclick="toggleHints()">💡 Hints</button>
-      <button class="btn-ghost" onclick="resetStep1()">↺ Reset</button>
+  <!-- ============ HOME / COVER ============ -->
+  <div class="screen on" id="scr-home">
+    <header>
+      <span class="badge">FTP ENGLISH · VIDEO CHALLENGE</span>
+      <h1>🎤 Live Streaming in Haikou<br>Video Summary Challenge</h1>
+      <p class="cn">Watch the video · Choose a level to start</p>
+    </header>
+    <div class="homecards">
+      <div class="hcard" onclick="showScreen('level1')">
+        <div class="ic">⌨️</div>
+        <div>
+          <span class="lvltag lvl1">LEVEL 1</span>
+          <h3>Fill in the Blanks</h3>
+          <p>Complete the video summary with 10 key words. Wrong answers turn red instantly!</p>
+        </div>
+        <span class="go">›</span>
+      </div>
+      <div class="hcard" onclick="showScreen('level2')">
+        <div class="ic">🎤</div>
+        <div>
+          <span class="lvltag lvl2">LEVEL 2</span>
+          <h3>Read Aloud &amp; AI Score</h3>
+          <p>Listen to the model reading, then read yourself — the AI scores every word.</p>
+        </div>
+        <span class="go">›</span>
+      </div>
+    </div>
+    <footer>Unit 5 Lesson B · Cross-border E-commerce · Warm-up Video Task</footer>
+  </div>
+
+  <!-- ============ LEVEL 1 ============ -->
+  <div class="screen" id="scr-level1">
+    <button class="backbtn" onclick="showScreen('home')">‹ Home</button>
+    <div class="panel">
+      <div class="ptitle"><span class="n">LEVEL 1</span>Fill in the Blanks</div>
+      <p class="tip">Complete the video summary. Tap a word from the word bank or type it in — <b>wrong answers turn red instantly!</b> 💡 shows hints.</p>
+      <div class="wordbank" id="bank"></div>
+      <div class="story" id="story"></div>
+      <div class="progress" id="progress">Correct: <b>0</b> / 10</div>
+      <div class="btnrow">
+        <button class="btn-ghost" onclick="toggleHints()">💡 Hints</button>
+        <button class="btn-ghost" onclick="resetStep1()">↺ Reset</button>
+      </div>
     </div>
   </div>
 
-  <!-- LEVELS 2-4 · READING -->
-  <div class="panel" id="panel2">
-    <div class="ptitle"><span class="n">LEVELS 2–4</span>Read Aloud &amp; AI Score</div>
-    <p class="tip">▶ <b>Model</b> = listen to the native-style reading (adjustable speed) · 🎤 <b>Read &amp; Score</b> = read it yourself, the AI checks every word and scores you instantly. Pick any sentence — no need to follow the order!</p>
-    <div class="speed">
-      Model speed:
-      <select id="rateSel">
-        <option value="0.8">🐢 Slow 0.8x</option>
-        <option value="0.95" selected>▶️ Normal 0.95x</option>
-        <option value="1.1">🐇 Fast 1.1x</option>
-      </select>
-      <span>Voice: <select id="voiceSel"></select></span>
-    </div>
-    <div id="segWrap"></div>
-    <div class="total" id="totalBox">
-      <div class="big" id="totalScore">0</div>
-      <div class="stars" id="totalStars">☆☆☆</div>
-      <p id="totalMsg"></p>
-      <button class="btn-ghost btn-sm" style="margin-top:10px" onclick="resetScores()">↺ Try Again</button>
+  <!-- ============ LEVEL 2 ============ -->
+  <div class="screen" id="scr-level2">
+    <button class="backbtn" onclick="showScreen('home')">‹ Home</button>
+    <div class="panel">
+      <div class="ptitle"><span class="n">LEVEL 2</span>Read Aloud &amp; AI Score</div>
+      <p class="tip">▶ <b>Model</b> = listen to the native-style reading (adjustable speed) · 🎤 <b>Read &amp; Score</b> = read it yourself, the AI checks every word and scores you instantly. Pick any sentence — no need to follow the order!</p>
+      <div class="warn" id="warnBox"></div>
+      <div class="speed">
+        Model speed:
+        <select id="rateSel">
+          <option value="0.8">🐢 Slow 0.8x</option>
+          <option value="0.95" selected>▶️ Normal 0.95x</option>
+          <option value="1.1">🐇 Fast 1.1x</option>
+        </select>
+        <span>Voice: <select id="voiceSel"></select></span>
+      </div>
+      <div id="segWrap"></div>
+      <div class="total" id="totalBox">
+        <div class="big" id="totalScore">0</div>
+        <div class="stars" id="totalStars">☆☆☆</div>
+        <p id="totalMsg"></p>
+        <button class="btn-ghost btn-sm" style="margin-top:10px" onclick="resetScores()">↺ Try Again</button>
+      </div>
     </div>
   </div>
-
-  <footer>Unit 5 Lesson B · Cross-border E-commerce · Warm-up Video Task</footer>
 </div>
 
 <script>
@@ -149,11 +194,12 @@ const SENTENCES = [
 const ALL_ANSWERS = SENTENCES.flatMap(s => s.answers);
 const BANK_WORDS = [...ALL_ANSWERS].sort(() => Math.random() - .5);
 
-function goTo(id, tabEl){
-  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('on'));
-  if(tabEl) tabEl.classList.add('on');
-  const el=document.getElementById(id);
-  if(el) el.scrollIntoView({behavior:'smooth',block:'start'});
+/* ================= SCREENS ================= */
+function showScreen(name){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));
+  document.getElementById('scr-'+name).classList.add('on');
+  window.scrollTo(0,0);
+  if(name==='level2') checkVoiceSupport();
 }
 
 /* ================= LEVEL 1 ================= */
@@ -210,7 +256,7 @@ function liveCheck(i){
 }
 function updateProgress(){
   const n = inputs.filter(o=>o.el.parentElement.classList.contains('ok')).length;
-  document.getElementById('progress').innerHTML='Correct: <b>'+n+'</b> / 10'+(n===10?' 🎉 All correct! Levels 2–4 are waiting for you!':'');
+  document.getElementById('progress').innerHTML='Correct: <b>'+n+'</b> / 10'+(n===10?' 🎉 All correct! Try Level 2 now!':'');
 }
 function focusedBlank(){
   const a=document.activeElement;
@@ -229,7 +275,6 @@ function moveNext(i){ const o=inputs.find(x=>x.idx===i+1); if(o) o.el.focus(); }
 function toggleHints(){
   hintsOn=!hintsOn;
   inputs.forEach(o=>{
-    const si = ALL_ANSWERS[o.idx]===SENTENCES[0].answers.find(a=>a===ALL_ANSWERS[o.idx]) ? 0 : null;
     let sIdx=0, li=-1;
     for(let k=0;k<SENTENCES.length;k++){
       const p=SENTENCES[k].answers.indexOf(ALL_ANSWERS[o.idx]);
@@ -246,7 +291,21 @@ function resetStep1(){
 }
 buildStep1();
 
-/* ================= LEVELS 2-4 ================= */
+/* ================= VOICE SUPPORT CHECK ================= */
+const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+const IN_WECHAT = /MicroMessenger|Weixin/i.test(navigator.userAgent);
+function checkVoiceSupport(){
+  const box=document.getElementById('warnBox');
+  let msg='';
+  if(IN_WECHAT){
+    msg='⚠️ Voice scoring does NOT work inside WeChat. Please tap "···" (top-right) → <b>Open in Browser</b>, and choose <b>Safari (iPhone)</b> or <b>Chrome (Android)</b>. The ▶ Model button works here, though!';
+  } else if(!SR){
+    msg='⚠️ Your browser does not support voice scoring. Please open this page in <b>Chrome</b> or <b>Edge</b>. The ▶ Model button still works.';
+  }
+  box.innerHTML=msg; box.className='warn'+(msg?' show':'');
+}
+
+/* ================= LEVEL 2 ================= */
 let voices=[];
 function loadVoices(){
   voices=speechSynthesis.getVoices().filter(v=>v.lang && v.lang.startsWith('en'));
@@ -305,21 +364,44 @@ function scoreText(target, heard){
   while(i>0){missed.push(T[i-1]);i--;}
   return {score:Math.round(dp[m][n]/m*100), missed:missed.reverse()};
 }
-const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
 let rec=null, recIdx=-1;
-function toggleRec(si){
-  if(!SR){ alert('Voice scoring is not supported in this browser. Please use Chrome or Edge.'); return; }
+async function warmUpMic(){
+  try{
+    if(navigator.mediaDevices && navigator.mediaDevices.getUserMedia){
+      const stream=await navigator.mediaDevices.getUserMedia({audio:true});
+      stream.getTracks().forEach(t=>t.stop());
+    }
+    return true;
+  }catch(e){ return false; }
+}
+async function toggleRec(si){
+  if(IN_WECHAT){
+    showRecMsg(si,'Voice scoring does not work inside WeChat. Tap "···" → Open in Browser, then use Safari or Chrome.');
+    return;
+  }
+  if(!SR){
+    showRecMsg(si,'Your browser does not support voice scoring. Please open this page in Chrome or Edge.');
+    return;
+  }
   if(recIdx===si && rec){ rec.stop(); return; }
   if(rec) rec.stop();
+  showRecMsg(si,'🎙️ Listening… read sentence S'+(si+1)+' clearly.');
+  const ok=await warmUpMic();
+  if(!ok && recIdx!==-99){
+    showRecMsg(si,'Microphone permission was denied. Please allow microphone access in your browser settings, then try again.');
+    return;
+  }
   startRec(si);
+}
+function showRecMsg(si,html){
+  const resBox=document.getElementById('res'+si);
+  resBox.className='sresult show';
+  resBox.innerHTML='<span style="color:var(--orange);font-weight:700">'+html+'</span>';
 }
 function startRec(si){
   recIdx=si;
   const btn=document.getElementById('rec'+si);
   btn.classList.add('recording'); btn.textContent='🔴 Listening… tap to stop';
-  const resBox=document.getElementById('res'+si);
-  resBox.className='sresult show';
-  resBox.innerHTML='<span style="color:var(--orange);font-weight:700">🎙️ Listening… read sentence S'+(si+1)+' clearly.</span>';
   rec=new SR();
   rec.lang='en-US'; rec.interimResults=false; rec.continuous=true;
   let heard='';
@@ -335,7 +417,12 @@ function finishRec(si,heard,err){
   btn.classList.remove('recording'); btn.textContent='🎤 Read & Score';
   const resBox=document.getElementById('res'+si);
   if(!heard.trim()){
-    resBox.innerHTML='<span style="color:var(--bad);font-weight:700">No voice detected'+(err?(' ('+err+')'):'')+' — move closer to the microphone and try again.</span>';
+    let tip='No voice detected — move closer to the microphone and try again.';
+    if(err==='service-not-allowed'||err==='not-allowed')
+      tip='Microphone access is blocked. Allow the microphone for this site in your browser settings, then try again.';
+    else if(err==='network')
+      tip='Speech service network error — check your internet connection and try again.';
+    resBox.innerHTML='<span style="color:var(--bad);font-weight:700">'+tip+'</span>';
     return;
   }
   const target=SENTENCES[si].text.replace(/\{\d+\}/g,m=>ALL_ANSWERS[+m.slice(1,-1)]);

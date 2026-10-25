@@ -111,6 +111,7 @@
       <span class="badge">FTP ENGLISH · VIDEO CHALLENGE</span>
       <h1>🎤 Live Streaming in Haikou<br>Video Summary Challenge</h1>
       <p class="cn">Watch the video · Choose a level to start</p>
+      <div class="warn" id="warnHome" style="text-align:left"></div>
     </header>
     <div class="homecards">
       <div class="hcard" onclick="showScreen('level1')">
@@ -294,16 +295,23 @@ buildStep1();
 /* ================= VOICE SUPPORT CHECK ================= */
 const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
 const IN_WECHAT = /MicroMessenger|Weixin/i.test(navigator.userAgent);
+function voiceWarnMsg(){
+  if(IN_WECHAT){
+    return '⚠️ <b>Do NOT do the speaking part inside WeChat!</b> Voice scoring does not work here.<br>Please tap <b>"···" (top-right) → Open in Browser</b>, then choose <b>Safari</b> (iPhone) or <b>Chrome</b> (Android). The fill-in-the-blanks and ▶ Model buttons work here, though.';
+  }
+  if(!SR){
+    return '⚠️ Your browser does not support voice scoring. Please open this page in <b>Chrome</b> or <b>Edge</b>. The ▶ Model button still works.';
+  }
+  return '';
+}
 function checkVoiceSupport(){
   const box=document.getElementById('warnBox');
-  let msg='';
-  if(IN_WECHAT){
-    msg='⚠️ Voice scoring does NOT work inside WeChat. Please tap "···" (top-right) → <b>Open in Browser</b>, and choose <b>Safari (iPhone)</b> or <b>Chrome (Android)</b>. The ▶ Model button works here, though!';
-  } else if(!SR){
-    msg='⚠️ Your browser does not support voice scoring. Please open this page in <b>Chrome</b> or <b>Edge</b>. The ▶ Model button still works.';
-  }
+  const msg=voiceWarnMsg();
   box.innerHTML=msg; box.className='warn'+(msg?' show':'');
 }
+checkVoiceSupport();
+document.getElementById('warnHome').innerHTML=voiceWarnMsg();
+if(voiceWarnMsg()) document.getElementById('warnHome').className='warn show';
 
 /* ================= LEVEL 2 ================= */
 let voices=[];

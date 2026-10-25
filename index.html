@@ -60,6 +60,8 @@
   .blank input:focus{ background:#ffefd8; }
   .blank.ok input{ border-color:var(--good); color:var(--good); background:#f0fbf4; }
   .blank.bad input{ border-color:var(--bad); color:var(--bad); background:#fef1f0; animation:shake .3s; }
+  .blank.locked input{ opacity:.45; background:#f3ece4; border-bottom-color:#d8cfc4; cursor:not-allowed; }
+  .blank.locked input:focus{ background:#f3ece4; }
   @keyframes shake{ 25%{transform:translateX(-4px)} 75%{transform:translateX(4px)} }
   .btnrow{ display:flex; gap:10px; margin-top:16px; flex-wrap:wrap; }
   button{ font-family:inherit; cursor:pointer; border:none; border-radius:14px; font-weight:800; }
@@ -238,8 +240,22 @@ function buildStep1(){
     c.onclick=()=>fillChip(w,c);
     bank.appendChild(c);
   });
+  refreshLock();
 }
 function norm(w){ return w.toLowerCase().replace(/[^a-z]/g,''); }
+function firstUnsolved(){
+  for(const o of inputs){ if(!o.el.parentElement.classList.contains('ok')) return o.idx; }
+  return inputs.length;
+}
+function refreshLock(){
+  const fu=firstUnsolved();
+  inputs.forEach(o=>{
+    const sp=o.el.parentElement;
+    if(o.idx<fu){ o.el.readOnly=true; sp.classList.remove('locked'); }
+    else if(o.idx===fu){ o.el.readOnly=false; sp.classList.remove('locked'); }
+    else { o.el.readOnly=true; sp.classList.add('locked'); }
+  });
+}
 function liveCheck(i){
   const o = inputs.find(x=>x.idx===i);
   const v = o.el.value.trim();
@@ -249,7 +265,7 @@ function liveCheck(i){
   const ans = norm(ALL_ANSWERS[i]);
   if(norm(v)===ans){
     span.classList.add('ok');
-    o.el.blur(); moveNext(i); updateProgress();
+    o.el.blur(); refreshLock(); moveNext(i); updateProgress();
   } else if(norm(v).length>=ans.length){
     span.classList.add('bad');
     o.el.focus(); o.el.select();
@@ -265,8 +281,8 @@ function focusedBlank(){
   return -1;
 }
 function fillChip(w, chipEl){
-  let target = focusedBlank();
-  if(target<0){ const f=inputs.find(x=>!x.el.value.trim()); if(!f) return; target=f.idx; }
+  const target = firstUnsolved();
+  if(target>=inputs.length) return;
   const o = inputs.find(x=>x.idx===target);
   o.el.value=w;
   liveCheck(target);
@@ -277,6 +293,7 @@ function resetStep1(){
   inputs.forEach(o=>{ o.el.value=''; o.el.parentElement.classList.remove('ok','bad'); });
   document.querySelectorAll('.chip').forEach(c=>c.classList.remove('used'));
   document.getElementById('progress').innerHTML='Correct: <b>0</b> / 10';
+  refreshLock();
 }
 buildStep1();
 

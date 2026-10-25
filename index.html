@@ -146,8 +146,7 @@
       <div class="story" id="story"></div>
       <div class="progress" id="progress">Correct: <b>0</b> / 10</div>
       <div class="btnrow">
-        <button class="btn-ghost" onclick="toggleHints()">💡 Hints</button>
-        <button class="btn-ghost" onclick="resetStep1()">↺ Reset</button>
+      <button class="btn-ghost" onclick="resetStep1()">↺ Reset</button>
       </div>
     </div>
   </div>
@@ -223,7 +222,7 @@ function buildStep1(){
         inp.setAttribute('autocapitalize','off'); inp.setAttribute('autocomplete','off');
         inp.dataset.idx = gi; inp.placeholder = '('+ (gi+1) +')';
         inp.addEventListener('input', ()=>liveCheck(+inp.dataset.idx));
-        inp.addEventListener('keydown', e=>{ if(e.key==='Enter'){ e.preventDefault(); moveNext(gi); }});
+        inp.addEventListener('keydown', e=>{ if(e.key==='Enter'){ e.preventDefault(); liveCheck(+inp.dataset.idx); }});
         span.appendChild(inp);
         p.appendChild(span);
         inputs.push({el:inp, idx:gi});
@@ -253,6 +252,7 @@ function liveCheck(i){
     o.el.blur(); moveNext(i); updateProgress();
   } else if(norm(v).length>=ans.length){
     span.classList.add('bad');
+    o.el.focus(); o.el.select();
   }
 }
 function updateProgress(){
@@ -273,18 +273,6 @@ function fillChip(w, chipEl){
   if(chipEl && norm(w)===norm(ALL_ANSWERS[target])) chipEl.classList.add('used');
 }
 function moveNext(i){ const o=inputs.find(x=>x.idx===i+1); if(o) o.el.focus(); }
-function toggleHints(){
-  hintsOn=!hintsOn;
-  inputs.forEach(o=>{
-    let sIdx=0, li=-1;
-    for(let k=0;k<SENTENCES.length;k++){
-      const p=SENTENCES[k].answers.indexOf(ALL_ANSWERS[o.idx]);
-      if(p>=0){ sIdx=k; li=p; break; }
-    }
-    o.el.placeholder = hintsOn ? SENTENCES[sIdx].hints[li] : '('+(o.idx+1)+')';
-  });
-  document.querySelector('[onclick="toggleHints()"]').textContent = hintsOn?'💡 Hide Hints':'💡 Hints';
-}
 function resetStep1(){
   inputs.forEach(o=>{ o.el.value=''; o.el.parentElement.classList.remove('ok','bad'); });
   document.querySelectorAll('.chip').forEach(c=>c.classList.remove('used'));

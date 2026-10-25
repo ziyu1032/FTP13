@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Live Streaming in Haikou — Video Summary Game</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  :root{
+    --orange:#F97316; --pink:#EC4899; --ink:#2b2118; --sub:#8a7a6b;
+    --cream:#FFF8F3; --card:#FFFFFF; --good:#16a34a; --bad:#dc2626; --line:rgba(249,115,22,.28);
+  }
+  body{ font-family:'Segoe UI','PingFang SC','Microsoft YaHei',sans-serif; color:var(--ink);
+    background:linear-gradient(180deg,#fff1e4 0%,#ffe8f1 55%,#fff6ec 100%); min-height:100vh; padding-bottom:70px; }
+  .wrap{ max-width:860px; margin:0 auto; padding:16px 14px 60px; }
+  header{ text-align:center; padding:16px 8px 6px; }
+  .badge{ display:inline-block; background:linear-gradient(135deg,var(--orange),var(--pink)); color:#fff;
+    font-size:12px; font-weight:700; letter-spacing:2px; border-radius:999px; padding:6px 16px; }
+  h1{ font-size:24px; margin-top:12px; line-height:1.3; }
+  .cn{ color:var(--sub); font-size:14px; margin-top:6px; }
+  .steps{ display:flex; gap:8px; justify-content:center; margin:14px 0 4px; flex-wrap:wrap; }
+  .tab{ font-size:13px; font-weight:700; border-radius:999px; padding:7px 15px; background:#fff;
+    border:1.5px solid var(--line); color:var(--sub); cursor:pointer; user-select:none; }
+  .tab:active{ transform:scale(.95); }
+  .tab.on{ background:linear-gradient(135deg,var(--orange),var(--pink)); color:#fff; border-color:transparent; }
+  .tab .st{ display:none; }
+
+  .panel{ background:var(--card); border-radius:18px; padding:18px 16px; margin-top:14px;
+    box-shadow:0 6px 24px rgba(249,115,22,.10); border:1px solid var(--line); }
+  .ptitle{ font-size:17px; font-weight:800; display:flex; align-items:center; gap:8px; }
+  .ptitle .n{ background:rgba(249,115,22,.12); color:var(--orange); border-radius:10px; padding:2px 10px; font-size:14px; }
+  .tip{ font-size:13.5px; color:var(--sub); margin-top:6px; line-height:1.6; }
+
+  .wordbank{ display:flex; flex-wrap:wrap; gap:8px; margin-top:12px; }
+  .chip{ background:#fff4ea; border:1.5px solid var(--orange); color:var(--orange); font-weight:700;
+    font-size:14px; border-radius:999px; padding:6px 14px; cursor:pointer; user-select:none; }
+  .chip:active{ transform:scale(.94); }
+  .chip.used{ opacity:.25; pointer-events:none; }
+
+  .story{ font-size:17.5px; line-height:2.25; margin-top:14px; color:#3d3227; }
+  .blank{ display:inline-block; }
+  .blank input{ width:120px; border:none; border-bottom:2.5px solid var(--orange); background:#fff8f2;
+    font-size:16.5px; font-weight:700; color:var(--orange); text-align:center; padding:3px 4px; outline:none; border-radius:6px 6px 0 0; }
+  .blank input:focus{ background:#ffefd8; }
+  .blank.ok input{ border-color:var(--good); color:var(--good); background:#f0fbf4; }
+  .blank.bad input{ border-color:var(--bad); color:var(--bad); background:#fef1f0; animation:shake .3s; }
+  @keyframes shake{ 25%{transform:translateX(-4px)} 75%{transform:translateX(4px)} }
+  .btnrow{ display:flex; gap:10px; margin-top:16px; flex-wrap:wrap; }
+  button{ font-family:inherit; cursor:pointer; border:none; border-radius:14px; font-weight:800; }
+  .btn-ghost{ background:#fff; border:1.5px solid var(--line); color:var(--orange); font-size:14px; padding:10px 18px; }
+  .progress{ margin-top:12px; font-size:14px; font-weight:800; color:var(--sub); }
+  .progress b{ color:var(--good); }
+
+  .seg{ border:1px solid var(--line); border-radius:14px; padding:14px; margin-top:12px; background:#fffdfb; scroll-margin-top:12px; }
+  .seg .stext{ font-size:16px; line-height:1.95; color:#3d3227; }
+  .stext b{ color:var(--orange); }
+  .stext miss{ background:#ffe1de; color:var(--bad); border-radius:4px; padding:0 2px; text-decoration:underline wavy var(--bad); }
+  .segbtns{ display:flex; gap:8px; margin-top:10px; flex-wrap:wrap; align-items:center; }
+  .btn-sm{ font-size:13.5px; padding:8px 14px; border-radius:10px; }
+  .btn-play{ background:rgba(249,115,22,.1); color:var(--orange); border:1.5px solid var(--line); }
+  .btn-rec{ background:linear-gradient(135deg,var(--orange),var(--pink)); color:#fff; }
+  .btn-rec.recording{ animation:pulse 1s infinite; }
+  @keyframes pulse{ 50%{ opacity:.55; } }
+  .sresult{ display:none; margin-top:10px; font-size:14px; border-radius:10px; padding:9px 12px; line-height:1.7; }
+  .sresult.show{ display:block; }
+
+  .total{ display:none; margin-top:16px; text-align:center; background:linear-gradient(135deg,var(--orange),var(--pink));
+    border-radius:16px; padding:18px; color:#fff; }
+  .total.show{ display:block; }
+  .total .big{ font-size:42px; font-weight:900; }
+  .total .stars{ font-size:22px; letter-spacing:4px; margin-top:2px; }
+  .total p{ font-size:14px; opacity:.95; margin-top:6px; line-height:1.6; }
+  .speed{ display:flex; align-items:center; gap:8px; margin-top:12px; font-size:13.5px; color:var(--sub); flex-wrap:wrap; }
+  .speed select{ font-family:inherit; font-size:13.5px; padding:6px 10px; border-radius:8px; border:1.5px solid var(--line); background:#fff; color:var(--ink); font-weight:700; }
+  footer{ text-align:center; margin-top:26px; font-size:12px; color:#b7a998; }
+  @media (max-width:560px){
+    h1{ font-size:20px; }
+    .story{ font-size:15.5px; line-height:2.15; }
+    .blank input{ width:96px; font-size:15px; }
+    .seg .stext{ font-size:14.5px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <span class="badge">FTP ENGLISH · VIDEO CHALLENGE</span>
+    <h1>🎤 Live Streaming in Haikou<br>Video Summary Challenge</h1>
+    <p class="cn">Watch · Fill in the blanks · Read aloud · Get your AI score</p>
+    <div class="steps">
+      <span class="tab on" data-go="panel1" onclick="goTo('panel1',this)">1 · Fill in the Blanks</span>
+      <span class="tab" data-go="seg0" onclick="goTo('seg0',this)">2 · Read S1</span>
+      <span class="tab" data-go="seg1" onclick="goTo('seg1',this)">3 · Read S2</span>
+      <span class="tab" data-go="seg2" onclick="goTo('seg2',this)">4 · Read S3</span>
+    </div>
+  </header>
+
+  <!-- LEVEL 1 · BLANKS -->
+  <div class="panel" id="panel1">
+    <div class="ptitle"><span class="n">LEVEL 1</span>Fill in the Blanks</div>
+    <p class="tip">Complete the video summary. Tap a word from the word bank or type it in — <b>wrong answers turn red instantly!</b> 💡 shows hints.</p>
+    <div class="wordbank" id="bank"></div>
+    <div class="story" id="story"></div>
+    <div class="progress" id="progress">Correct: <b>0</b> / 10</div>
+    <div class="btnrow">
+      <button class="btn-ghost" onclick="toggleHints()">💡 Hints</button>
+      <button class="btn-ghost" onclick="resetStep1()">↺ Reset</button>
+    </div>
+  </div>
+
+  <!-- LEVELS 2-4 · READING -->
+  <div class="panel" id="panel2">
+    <div class="ptitle"><span class="n">LEVELS 2–4</span>Read Aloud &amp; AI Score</div>
+    <p class="tip">▶ <b>Model</b> = listen to the native-style reading (adjustable speed) · 🎤 <b>Read &amp; Score</b> = read it yourself, the AI checks every word and scores you instantly. Pick any sentence — no need to follow the order!</p>
+    <div class="speed">
+      Model speed:
+      <select id="rateSel">
+        <option value="0.8">🐢 Slow 0.8x</option>
+        <option value="0.95" selected>▶️ Normal 0.95x</option>
+        <option value="1.1">🐇 Fast 1.1x</option>
+      </select>
+      <span>Voice: <select id="voiceSel"></select></span>
+    </div>
+    <div id="segWrap"></div>
+    <div class="total" id="totalBox">
+      <div class="big" id="totalScore">0</div>
+      <div class="stars" id="totalStars">☆☆☆</div>
+      <p id="totalMsg"></p>
+      <button class="btn-ghost btn-sm" style="margin-top:10px" onclick="resetScores()">↺ Try Again</button>
+    </div>
+  </div>
+
+  <footer>Unit 5 Lesson B · Cross-border E-commerce · Warm-up Video Task</footer>
+</div>
+
+<script>
+/* ================= DATA ================= */
+const SENTENCES = [
+  { text: "With the rapid development of China's e-commerce economy, more and more foreign {0} in Haikou, Hainan Province are engaging in live streaming to keep up with the {1}.",
+    answers: ["expats","trend"],
+    hints: ["starts with 'e' · foreign residents living in China","starts with 't' · a general direction of change"] },
+  { text: "The world is moving from {2} shopping to e-commerce. Many shops are already {3}, so if you still stick to traditional methods, the world will {4} you behind. China's e-commerce economy is very developed and {5}: whatever you buy online, the next day it arrives, and if you don't like it, you can {6} it.",
+    answers: ["traditional","online","leave","convenient","return"],
+    hints: ["starts with 't' · the old way of doing things","starts with 'o' · connected to the internet","starts with 'l' · go away and abandon (leave sb behind)","starts with 'c' · easy, quick and useful","starts with 'r' · send back something you bought"] },
+  { text: "Because the {7} of China is really huge, e-commerce will continue to {8}. One expat's plan for next year is to sell {9} from his country, especially palm oil, so he will open an account next year.",
+    answers: ["population","develop","products"],
+    hints: ["starts with 'p' · the number of people living in a place","starts with 'd' · grow and make progress","starts with 'p' · things that are made to be sold"] }
+];
+const ALL_ANSWERS = SENTENCES.flatMap(s => s.answers);
+const BANK_WORDS = [...ALL_ANSWERS].sort(() => Math.random() - .5);
+
+function goTo(id, tabEl){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('on'));
+  if(tabEl) tabEl.classList.add('on');
+  const el=document.getElementById(id);
+  if(el) el.scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+/* ================= LEVEL 1 ================= */
+const inputs = [];
+let hintsOn = false;
+
+function buildStep1(){
+  const story = document.getElementById('story');
+  let gi = 0;
+  SENTENCES.forEach((s, si) => {
+    const p = document.createElement('div');
+    const parts = s.text.split(/\{\d+\}/);
+    p.style.marginTop = si ? '10px' : '0';
+    parts.forEach((chunk, ci) => {
+      p.appendChild(document.createTextNode(chunk));
+      if (ci < s.answers.length){
+        const span = document.createElement('span');
+        span.className = 'blank';
+        const inp = document.createElement('input');
+        inp.setAttribute('autocapitalize','off'); inp.setAttribute('autocomplete','off');
+        inp.dataset.idx = gi; inp.placeholder = '('+ (gi+1) +')';
+        inp.addEventListener('input', ()=>liveCheck(+inp.dataset.idx));
+        inp.addEventListener('keydown', e=>{ if(e.key==='Enter'){ e.preventDefault(); moveNext(gi); }});
+        span.appendChild(inp);
+        p.appendChild(span);
+        inputs.push({el:inp, idx:gi});
+        gi++;
+      }
+    });
+    story.appendChild(p);
+  });
+  const bank = document.getElementById('bank');
+  BANK_WORDS.forEach(w=>{
+    const c = document.createElement('span');
+    c.className='chip'; c.textContent=w;
+    c.onclick=()=>fillChip(w,c);
+    bank.appendChild(c);
+  });
+}
+function norm(w){ return w.toLowerCase().replace(/[^a-z]/g,''); }
+function liveCheck(i){
+  const o = inputs.find(x=>x.idx===i);
+  const v = o.el.value.trim();
+  const span = o.el.parentElement;
+  span.classList.remove('ok','bad');
+  if(!v) return;
+  const ans = norm(ALL_ANSWERS[i]);
+  if(norm(v)===ans){
+    span.classList.add('ok');
+    o.el.blur(); moveNext(i); updateProgress();
+  } else if(norm(v).length>=ans.length){
+    span.classList.add('bad');
+  }
+}
+function updateProgress(){
+  const n = inputs.filter(o=>o.el.parentElement.classList.contains('ok')).length;
+  document.getElementById('progress').innerHTML='Correct: <b>'+n+'</b> / 10'+(n===10?' 🎉 All correct! Levels 2–4 are waiting for you!':'');
+}
+function focusedBlank(){
+  const a=document.activeElement;
+  if(a && a.tagName==='INPUT' && a.parentElement.classList.contains('blank')) return +a.dataset.idx;
+  return -1;
+}
+function fillChip(w, chipEl){
+  let target = focusedBlank();
+  if(target<0){ const f=inputs.find(x=>!x.el.value.trim()); if(!f) return; target=f.idx; }
+  const o = inputs.find(x=>x.idx===target);
+  o.el.value=w;
+  liveCheck(target);
+  if(chipEl && norm(w)===norm(ALL_ANSWERS[target])) chipEl.classList.add('used');
+}
+function moveNext(i){ const o=inputs.find(x=>x.idx===i+1); if(o) o.el.focus(); }
+function toggleHints(){
+  hintsOn=!hintsOn;
+  inputs.forEach(o=>{
+    const si = ALL_ANSWERS[o.idx]===SENTENCES[0].answers.find(a=>a===ALL_ANSWERS[o.idx]) ? 0 : null;
+    let sIdx=0, li=-1;
+    for(let k=0;k<SENTENCES.length;k++){
+      const p=SENTENCES[k].answers.indexOf(ALL_ANSWERS[o.idx]);
+      if(p>=0){ sIdx=k; li=p; break; }
+    }
+    o.el.placeholder = hintsOn ? SENTENCES[sIdx].hints[li] : '('+(o.idx+1)+')';
+  });
+  document.querySelector('[onclick="toggleHints()"]').textContent = hintsOn?'💡 Hide Hints':'💡 Hints';
+}
+function resetStep1(){
+  inputs.forEach(o=>{ o.el.value=''; o.el.parentElement.classList.remove('ok','bad'); });
+  document.querySelectorAll('.chip').forEach(c=>c.classList.remove('used'));
+  document.getElementById('progress').innerHTML='Correct: <b>0</b> / 10';
+}
+buildStep1();
+
+/* ================= LEVELS 2-4 ================= */
+let voices=[];
+function loadVoices(){
+  voices=speechSynthesis.getVoices().filter(v=>v.lang && v.lang.startsWith('en'));
+  const sel=document.getElementById('voiceSel');
+  sel.innerHTML='';
+  const score=v=>/natural/i.test(v.name)?0:/aria|jenny|guy|libby/i.test(v.name)?1:/google/i.test(v.name)?2:/samantha|daniel/i.test(v.name)?3:4;
+  voices.sort((a,b)=>score(a)-score(b)).forEach((v,i)=>{
+    const op=document.createElement('option'); op.value=v.name;
+    op.textContent=(i===0?'⭐ ':'')+v.name.replace(/Microsoft |Google /,'')+' ('+v.lang+')';
+    sel.appendChild(op);
+  });
+}
+speechSynthesis.onvoiceschanged=loadVoices; loadVoices();
+
+function speakText(text){
+  speechSynthesis.cancel();
+  const u=new SpeechSynthesisUtterance(text);
+  const name=document.getElementById('voiceSel').value;
+  const v=voices.find(x=>x.name===name);
+  if(v) u.voice=v;
+  u.lang='en-US'; u.rate=parseFloat(document.getElementById('rateSel').value); u.pitch=1;
+  speechSynthesis.speak(u);
+}
+
+function fillBlanksInText(){
+  const wrap=document.getElementById('segWrap');
+  wrap.innerHTML='';
+  SENTENCES.forEach((s,si)=>{
+    const div=document.createElement('div'); div.className='seg'; div.id='seg'+si;
+    let html=s.text;
+    s.answers.forEach((a,k)=>{ html=html.replace('{'+ALL_ANSWERS.indexOf(a)+'}', '<b>'+a+'</b>'); });
+    div.innerHTML='<div class="stext" id="stext'+si+'"><b>S'+(si+1)+'.</b> '+html+'</div>'+
+      '<div class="segbtns">'+
+      '<button class="btn-sm btn-play" onclick="playModel('+si+')">▶ Model</button>'+
+      '<button class="btn-sm btn-rec" id="rec'+si+'" onclick="toggleRec('+si+')">🎤 Read &amp; Score</button>'+
+      '</div><div class="sresult" id="res'+si+'"></div>';
+    wrap.appendChild(div);
+  });
+  checkAllDone();
+}
+
+/* ---- AI scoring (word-level LCS) ---- */
+function normText(t){ return t.toLowerCase().replace(/[’']/g,'').replace(/[^a-z0-9 ]/g,' ').replace(/\s+/g,' ').trim(); }
+function scoreText(target, heard){
+  const T=normText(target).split(' '), H=normText(heard).split(' ');
+  const m=T.length,n=H.length;
+  const dp=Array.from({length:m+1},()=>new Array(n+1).fill(0));
+  for(let i=1;i<=m;i++)for(let j=1;j<=n;j++)
+    dp[i][j]=T[i-1]===H[j-1]?dp[i-1][j-1]+1:Math.max(dp[i-1][j],dp[i][j-1]);
+  let missed=[],i=m,j=n;
+  while(i>0&&j>0){
+    if(T[i-1]===H[j-1]){i--;j--;}
+    else if(dp[i-1][j]>=dp[i][j-1]){missed.push(T[i-1]);i--;}
+    else j--;
+  }
+  while(i>0){missed.push(T[i-1]);i--;}
+  return {score:Math.round(dp[m][n]/m*100), missed:missed.reverse()};
+}
+const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+let rec=null, recIdx=-1;
+function toggleRec(si){
+  if(!SR){ alert('Voice scoring is not supported in this browser. Please use Chrome or Edge.'); return; }
+  if(recIdx===si && rec){ rec.stop(); return; }
+  if(rec) rec.stop();
+  startRec(si);
+}
+function startRec(si){
+  recIdx=si;
+  const btn=document.getElementById('rec'+si);
+  btn.classList.add('recording'); btn.textContent='🔴 Listening… tap to stop';
+  const resBox=document.getElementById('res'+si);
+  resBox.className='sresult show';
+  resBox.innerHTML='<span style="color:var(--orange);font-weight:700">🎙️ Listening… read sentence S'+(si+1)+' clearly.</span>';
+  rec=new SR();
+  rec.lang='en-US'; rec.interimResults=false; rec.continuous=true;
+  let heard='';
+  rec.onresult=e=>{ for(let k=e.resultIndex;k<e.results.length;k++) if(e.results[k].isFinal) heard+=e.results[k][0].transcript+' '; };
+  rec.onerror=e=>{ finishRec(si,heard,e.error); };
+  rec.onend=()=>finishRec(si,heard,'');
+  rec.start();
+}
+function finishRec(si,heard,err){
+  if(recIdx!==si) return;
+  recIdx=-1; rec=null;
+  const btn=document.getElementById('rec'+si);
+  btn.classList.remove('recording'); btn.textContent='🎤 Read & Score';
+  const resBox=document.getElementById('res'+si);
+  if(!heard.trim()){
+    resBox.innerHTML='<span style="color:var(--bad);font-weight:700">No voice detected'+(err?(' ('+err+')'):'')+' — move closer to the microphone and try again.</span>';
+    return;
+  }
+  const target=SENTENCES[si].text.replace(/\{\d+\}/g,m=>ALL_ANSWERS[+m.slice(1,-1)]);
+  const r=scoreText(target,heard);
+  renderResult(si,r,heard);
+  checkAllDone();
+}
+function renderResult(si,r,heard){
+  const resBox=document.getElementById('res'+si);
+  let stars=r.score>=90?'⭐⭐⭐':r.score>=75?'⭐⭐':r.score>=60?'⭐':'';
+  let comment=r.score>=90?'Excellent pronunciation!':r.score>=75?'Good job! Practice the red words a little more.':r.score>=60?'Not bad! Pay attention to the marked words.':'Listen to the Model first, then read it slowly again.';
+  let missHtml='';
+  if(r.missed.length) missHtml='<br><b>Words to improve:</b> '+r.missed.slice(0,10).map(w=>'<span style="color:var(--bad);font-weight:800">'+w+'</span>').join(' · ');
+  resBox.innerHTML='<b style="color:var(--orange)">S'+(si+1)+' Score: '+r.score+' '+stars+'</b><br>'+comment+missHtml+
+    '<br><span style="color:var(--sub);font-size:12.5px">Heard: '+heard2escape(heard||'')+'</span>';
+  const st=document.getElementById('stext'+si);
+  r.missed.forEach(w=>{
+    const re=new RegExp('\\b('+w.replace(/[^a-z0-9]/gi,'')+')\\b','ig');
+    st.innerHTML=st.innerHTML.replace(re,'<miss>$1</miss>');
+  });
+  resBox.dataset.score=r.score;
+}
+function heard2escape(s){ return s.replace(/</g,'&lt;'); }
+function checkAllDone(){
+  const scores=[0,1,2].map(si=>{
+    const b=document.getElementById('res'+si);
+    return b&&b.dataset.score?+b.dataset.score:null;
+  });
+  const done=scores.filter(s=>s!==null);
+  if(done.length===3){
+    const avg=Math.round(done.reduce((a,b)=>a+b,0)/3);
+    const stars=avg>=90?'⭐⭐⭐':avg>=75?'⭐⭐':avg>=60?'⭐':'';
+    document.getElementById('totalBox').classList.add('show');
+    document.getElementById('totalScore').textContent=avg;
+    document.getElementById('totalStars').textContent=stars||'💪';
+    document.getElementById('totalMsg').innerHTML=
+      avg>=90?'Perfect reading! You could teach this class! 🎉':avg>=75?'Well done! One more round with the Model will make it perfect.':avg>=60?'Good try! Listen to the Model and watch the red words.':"Don't give up — listen to the Model twice, then challenge again!";
+  }
+}
+function resetScores(){
+  fillBlanksInText();
+  document.getElementById('totalBox').classList.remove('show');
+}
+function playModel(si){
+  const target=SENTENCES[si].text.replace(/\{\d+\}/g,m=>ALL_ANSWERS[+m.slice(1,-1)]);
+  speakText(target);
+}
+fillBlanksInText();
+</script>
+</body>
+</html>

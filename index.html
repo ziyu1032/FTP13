@@ -2,488 +2,105 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<title>Live Streaming in Haikou — Video Summary Game</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#0E7490">
+<title>Hainan Duty-Free Challenge · Unit 5 Lesson A</title>
 <style>
   * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
-  :root{
-    --orange:#F97316; --pink:#EC4899; --ink:#2b2118; --sub:#8a7a6b;
-    --card:#FFFFFF; --good:#16a34a; --bad:#dc2626; --line:rgba(249,115,22,.28);
+  body {
+    font-family:-apple-system, "Segoe UI", Roboto, "Helvetica Neue", "PingFang SC", "Microsoft YaHei", sans-serif;
+    min-height:100dvh; color:#0F3E52; display:flex; align-items:center; justify-content:center;
+    padding:20px 14px; position:relative; overflow-x:hidden;
+    background:linear-gradient(160deg,#0E7490 0%,#0284C7 48%,#06B6D4 100%);
   }
-  body{ font-family:'Segoe UI','PingFang SC','Microsoft YaHei',sans-serif; color:var(--ink);
-    background:linear-gradient(180deg,#fff1e4 0%,#ffe8f1 55%,#fff6ec 100%); min-height:100vh; padding-bottom:60px; }
-  .wrap{ max-width:860px; margin:0 auto; padding:16px 14px 50px; }
-  .screen{ display:none; }
-  .screen.on{ display:block; }
-
-  header{ text-align:center; padding:16px 8px 6px; }
-  .badge{ display:inline-block; background:linear-gradient(135deg,var(--orange),var(--pink)); color:#fff;
-    font-size:12px; font-weight:700; letter-spacing:2px; border-radius:999px; padding:6px 16px; }
-  h1{ font-size:24px; margin-top:12px; line-height:1.3; }
-  .cn{ color:var(--sub); font-size:14px; margin-top:6px; }
-
-  /* home cards */
-  .homecards{ display:flex; flex-direction:column; gap:16px; margin-top:22px; }
-  .hcard{ background:var(--card); border-radius:20px; padding:22px 20px; display:flex; align-items:center; gap:16px;
-    border:1px solid var(--line); box-shadow:0 6px 24px rgba(249,115,22,.10); cursor:pointer; transition:transform .15s; }
-  .hcard:active{ transform:scale(.97); }
-  .hcard .ic{ width:64px; height:64px; border-radius:18px; display:flex; align-items:center; justify-content:center; font-size:30px; flex:none; }
-  .hcard:nth-child(1) .ic{ background:rgba(249,115,22,.12); }
-  .hcard:nth-child(2) .ic{ background:rgba(236,72,153,.12); }
-  .hcard h3{ font-size:18px; }
-  .hcard p{ font-size:13.5px; color:var(--sub); margin-top:4px; line-height:1.5; }
-  .hcard .go{ margin-left:auto; color:var(--orange); font-weight:900; font-size:20px; flex:none; }
-  .lvltag{ display:inline-block; font-size:11px; font-weight:800; letter-spacing:1px; border-radius:999px; padding:2px 10px; margin-bottom:4px; }
-  .lvl1{ background:rgba(249,115,22,.12); color:var(--orange); }
-  .lvl2{ background:rgba(236,72,153,.12); color:var(--pink); }
-
-  .backbtn{ display:inline-flex; align-items:center; gap:6px; background:#fff; border:1.5px solid var(--line);
-    color:var(--orange); font-size:13.5px; font-weight:800; border-radius:999px; padding:8px 16px; cursor:pointer; margin-bottom:6px; }
-  .backbtn:active{ transform:scale(.95); }
-
-  .panel{ background:var(--card); border-radius:18px; padding:18px 16px; margin-top:14px;
-    box-shadow:0 6px 24px rgba(249,115,22,.10); border:1px solid var(--line); }
-  .ptitle{ font-size:17px; font-weight:800; display:flex; align-items:center; gap:8px; }
-  .ptitle .n{ background:rgba(249,115,22,.12); color:var(--orange); border-radius:10px; padding:2px 10px; font-size:14px; }
-  .tip{ font-size:13.5px; color:var(--sub); margin-top:6px; line-height:1.6; }
-
-  .wordbank{ display:flex; flex-wrap:wrap; gap:8px; margin-top:12px; }
-  .chip{ background:#fff4ea; border:1.5px solid var(--orange); color:var(--orange); font-weight:700;
-    font-size:14px; border-radius:999px; padding:6px 14px; cursor:pointer; user-select:none; }
-  .chip:active{ transform:scale(.94); }
-  .chip.used{ opacity:.25; pointer-events:none; }
-
-  .story{ font-size:17.5px; line-height:2.25; margin-top:14px; color:#3d3227; }
-  .blank{ display:inline-block; }
-  .blank input{ width:120px; border:none; border-bottom:2.5px solid var(--orange); background:#fff8f2;
-    font-size:16.5px; font-weight:700; color:var(--orange); text-align:center; padding:3px 4px; outline:none; border-radius:6px 6px 0 0; }
-  .blank input:focus{ background:#ffefd8; }
-  .blank.ok input{ border-color:var(--good); color:var(--good); background:#f0fbf4; }
-  .blank.bad input{ border-color:var(--bad); color:var(--bad); background:#fef1f0; animation:shake .3s; }
-  .blank.locked input{ opacity:.45; background:#f3ece4; border-bottom-color:#d8cfc4; cursor:not-allowed; }
-  .blank.locked input:focus{ background:#f3ece4; }
-  @keyframes shake{ 25%{transform:translateX(-4px)} 75%{transform:translateX(4px)} }
-  .btnrow{ display:flex; gap:10px; margin-top:16px; flex-wrap:wrap; }
-  button{ font-family:inherit; cursor:pointer; border:none; border-radius:14px; font-weight:800; }
-  .btn-ghost{ background:#fff; border:1.5px solid var(--line); color:var(--orange); font-size:14px; padding:10px 18px; }
-  .progress{ margin-top:12px; font-size:14px; font-weight:800; color:var(--sub); }
-  .progress b{ color:var(--good); }
-
-  .warn{ display:none; margin-top:12px; background:#fff7e0; border:1.5px solid #f5c451; border-radius:12px;
-    padding:12px 14px; font-size:13.5px; line-height:1.7; color:#8a6d1a; font-weight:700; }
-  .warn.show{ display:block; }
-
-  .seg{ border:1px solid var(--line); border-radius:14px; padding:14px; margin-top:12px; background:#fffdfb; }
-  .seg .stext{ font-size:16px; line-height:1.95; color:#3d3227; }
-  .stext b{ color:var(--orange); }
-  .stext miss{ background:#ffe1de; color:var(--bad); border-radius:4px; padding:0 2px; text-decoration:underline wavy var(--bad); }
-  .segbtns{ display:flex; gap:8px; margin-top:10px; flex-wrap:wrap; align-items:center; }
-  .btn-sm{ font-size:13.5px; padding:8px 14px; border-radius:10px; }
-  .btn-play{ background:rgba(249,115,22,.1); color:var(--orange); border:1.5px solid var(--line); }
-  .btn-rec{ background:linear-gradient(135deg,var(--orange),var(--pink)); color:#fff; }
-  .btn-rec.recording{ animation:pulse 1s infinite; }
-  .btn-rec:disabled{ opacity:.4; }
-  @keyframes pulse{ 50%{ opacity:.55; } }
-  .sresult{ display:none; margin-top:10px; font-size:14px; border-radius:10px; padding:9px 12px; line-height:1.7; }
-  .sresult.show{ display:block; }
-
-  .total{ display:none; margin-top:16px; text-align:center; background:linear-gradient(135deg,var(--orange),var(--pink));
-    border-radius:16px; padding:18px; color:#fff; }
-  .total.show{ display:block; }
-  .total .big{ font-size:42px; font-weight:900; }
-  .total .stars{ font-size:22px; letter-spacing:4px; margin-top:2px; }
-  .total p{ font-size:14px; opacity:.95; margin-top:6px; line-height:1.6; }
-  .speed{ display:flex; align-items:center; gap:8px; margin-top:12px; font-size:13.5px; color:var(--sub); flex-wrap:wrap; }
-  .speed select{ font-family:inherit; font-size:13.5px; padding:6px 10px; border-radius:8px; border:1.5px solid var(--line); background:#fff; color:var(--ink); font-weight:700; }
-  footer{ text-align:center; margin-top:26px; font-size:12px; color:#b7a998; }
-  @media (max-width:560px){
-    h1{ font-size:20px; }
-    .story{ font-size:15.5px; line-height:2.15; }
-    .blank input{ width:96px; font-size:15px; }
-    .seg .stext{ font-size:14.5px; }
+  .float-emoji { position:fixed; font-size:30px; opacity:.22; pointer-events:none; animation:floaty 9s ease-in-out infinite; }
+  @keyframes floaty { 0%,100%{transform:translateY(0) rotate(-6deg);} 50%{transform:translateY(-22px) rotate(8deg);} }
+  .waves { position:fixed; left:0; bottom:0; width:100%; height:110px; opacity:.42; pointer-events:none; }
+  .card {
+    position:relative; z-index:1; width:100%; max-width:760px; background:#fff;
+    border-radius:24px; padding:40px 36px; box-shadow:0 22px 60px rgba(3,60,80,.35); text-align:center;
+    animation:pop .35s ease;
+  }
+  @keyframes pop { from{transform:scale(.97);opacity:0;} to{transform:scale(1);opacity:1;} }
+  h1 { font-size:32px; line-height:1.2; letter-spacing:-.4px; }
+  .sub { color:#0E7490; font-size:16px; font-weight:600; margin-top:10px; }
+  .hint { color:#64748B; font-size:14px; line-height:1.6; margin-top:10px; }
+  .options { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-top:26px; }
+  .opt-card {
+    position:relative; display:flex; flex-direction:column; align-items:center; gap:6px;
+    padding:26px 16px; border-radius:18px; border:2px solid #E2E8F0; background:#F8FAFC;
+    text-decoration:none; color:#0F3E52; transition:transform .15s, border-color .15s, background .15s;
+  }
+  .opt-card:hover { border-color:#38BDF8; background:#F0F9FF; transform:translateY(-3px); }
+  .opt-card:active { transform:scale(.985); }
+  .opt-ico { font-size:34px; line-height:1; }
+  .opt-title { font-size:19px; font-weight:800; }
+  .opt-desc { font-size:13.5px; color:#64748B; line-height:1.5; }
+  .badge {
+    position:absolute; top:-11px; left:50%; transform:translateX(-50%);
+    background:#F97316; color:#fff; font-size:11px; font-weight:800; letter-spacing:.6px;
+    padding:4px 12px; border-radius:999px; white-space:nowrap;
+  }
+  .foot { margin-top:24px; color:#94A3B8; font-size:12.5px; line-height:1.6; }
+  @media (max-width:640px) {
+    .card { padding:28px 20px; border-radius:20px; }
+    h1 { font-size:24px; }
+    .sub { font-size:14px; }
+    .options { grid-template-columns:1fr; gap:12px; }
+    .opt-card { flex-direction:row; text-align:left; padding:18px 18px; gap:14px; align-items:center; }
+    .opt-ico { font-size:28px; }
+    .opt-title { font-size:16.5px; }
+    .opt-desc { font-size:12.5px; }
+    .opt-card .txt { display:flex; flex-direction:column; gap:3px; }
+    .badge { top:auto; left:auto; right:10px; bottom:10px; transform:none; font-size:10px; padding:3px 9px; }
   }
 </style>
 </head>
 <body>
-<div class="wrap">
+  <span class="float-emoji" style="top:8%;left:6%;">🌴</span>
+  <span class="float-emoji" style="top:14%;right:8%;animation-delay:1.5s;">🛍️</span>
+  <span class="float-emoji" style="bottom:16%;left:10%;animation-delay:3s;">✈️</span>
+  <svg class="waves" viewBox="0 0 1440 120" preserveAspectRatio="none">
+    <path d="M0,60 C240,110 480,10 720,50 C960,90 1200,20 1440,60 L1440,120 L0,120 Z" fill="#7DD3FC"/>
+    <path d="M0,80 C260,120 520,40 760,70 C1000,100 1240,50 1440,85 L1440,120 L0,120 Z" fill="#BAE6FD" opacity=".8"/>
+  </svg>
 
-  <!-- ============ HOME / COVER ============ -->
-  <div class="screen on" id="scr-home">
-    <header>
-      <span class="badge">FTP ENGLISH · VIDEO CHALLENGE</span>
-      <h1>🎤 Live Streaming in Haikou<br>Video Summary Challenge</h1>
-      <p class="cn">Watch the video · Choose a level to start</p>
-      <div class="warn" id="warnHome" style="text-align:left"></div>
-    </header>
-    <div class="homecards">
-      <div class="hcard" onclick="showScreen('level1')">
-        <div class="ic">⌨️</div>
-        <div>
-          <span class="lvltag lvl1">LEVEL 1</span>
-          <h3>Fill in the Blanks</h3>
-          <p>Complete the video summary with 10 key words. Wrong answers turn red instantly!</p>
-        </div>
-        <span class="go">›</span>
-      </div>
-      <div class="hcard" onclick="showScreen('level2')">
-        <div class="ic">🎤</div>
-        <div>
-          <span class="lvltag lvl2">LEVEL 2</span>
-          <h3>Read Aloud &amp; AI Score</h3>
-          <p>Listen to the model reading, then read yourself — the AI scores every word.</p>
-        </div>
-        <span class="go">›</span>
-      </div>
+  <div class="card">
+    <h1>Hainan Duty-Free Challenge 🌴</h1>
+    <div class="sub">Unit 5 Lesson A · Offshore Duty-Free Shopping Policy</div>
+    <div class="hint">Choose the version that fits your screen. Both versions have the same questions.</div>
+
+    <div class="options">
+      <a class="opt-card" href="desktop.html" id="card-desktop">
+        <span class="opt-ico">💻</span>
+        <span class="txt">
+          <span class="opt-title">Computer</span>
+          <span class="opt-desc">Bigger fonts, wide layout — for a laptop or a classroom projector.</span>
+        </span>
+      </a>
+      <a class="opt-card" href="mobile.html" id="card-mobile">
+        <span class="opt-ico">📱</span>
+        <span class="txt">
+          <span class="opt-title">Phone</span>
+          <span class="opt-desc">Full-width buttons and a sticky progress bar — easy to answer on a phone.</span>
+        </span>
+      </a>
     </div>
-    <footer>Unit 5 Lesson B · Cross-border E-commerce · Warm-up Video Task</footer>
+
+    <div class="foot">Wrong choices never reveal the answer — students must find the correct one. 📖 The reading text is available on every screen.</div>
   </div>
 
-  <!-- ============ LEVEL 1 ============ -->
-  <div class="screen" id="scr-level1">
-    <button class="backbtn" onclick="showScreen('home')">‹ Home</button>
-    <div class="panel">
-      <div class="ptitle"><span class="n">LEVEL 1</span>Fill in the Blanks</div>
-      <p class="tip">Complete the video summary. Tap a word from the word bank or type it in — <b>wrong answers turn red instantly!</b> 💡 shows hints.</p>
-      <div class="wordbank" id="bank"></div>
-      <div class="story" id="story"></div>
-      <div class="progress" id="progress">Correct: <b>0</b> / 10</div>
-      <div class="btnrow">
-      <button class="btn-ghost" onclick="resetStep1()">↺ Reset</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- ============ LEVEL 2 ============ -->
-  <div class="screen" id="scr-level2">
-    <button class="backbtn" onclick="showScreen('home')">‹ Home</button>
-    <div class="panel">
-      <div class="ptitle"><span class="n">LEVEL 2</span>Read Aloud &amp; AI Score</div>
-      <p class="tip">▶ <b>Model</b> = listen to the native-style reading (adjustable speed) · 🎤 <b>Read &amp; Score</b> = read it yourself, the AI checks every word and scores you instantly. Pick any sentence — no need to follow the order!</p>
-      <div class="warn" id="warnBox"></div>
-      <div class="speed">
-        Model speed:
-        <select id="rateSel">
-          <option value="0.8">🐢 Slow 0.8x</option>
-          <option value="0.95" selected>▶️ Normal 0.95x</option>
-          <option value="1.1">🐇 Fast 1.1x</option>
-        </select>
-        <span>Voice: <select id="voiceSel"></select></span>
-      </div>
-      <div id="segWrap"></div>
-      <div class="total" id="totalBox">
-        <div class="big" id="totalScore">0</div>
-        <div class="stars" id="totalStars">☆☆☆</div>
-        <p id="totalMsg"></p>
-        <button class="btn-ghost btn-sm" style="margin-top:10px" onclick="resetScores()">↺ Try Again</button>
-      </div>
-    </div>
-  </div>
-</div>
-
-<script>
-/* ================= DATA ================= */
-const SENTENCES = [
-  { text: "With the rapid development of China's e-commerce economy, more and more foreign {0} in Haikou, Hainan Province are engaging in live streaming to keep up with the {1}.",
-    answers: ["expats","trend"],
-    hints: ["starts with 'e' · foreign residents living in China","starts with 't' · a general direction of change"] },
-  { text: "The world is moving from {2} shopping to e-commerce. Many shops are already {3}, so if you still stick to traditional methods, the world will {4} you behind. China's e-commerce economy is very developed and {5}: whatever you buy online, the next day it arrives, and if you don't like it, you can {6} it.",
-    answers: ["traditional","online","leave","convenient","return"],
-    hints: ["starts with 't' · the old way of doing things","starts with 'o' · connected to the internet","starts with 'l' · go away and abandon (leave sb behind)","starts with 'c' · easy, quick and useful","starts with 'r' · send back something you bought"] },
-  { text: "Because the {7} of China is really huge, e-commerce will continue to {8}. One expat's plan for next year is to sell {9} from his country, especially palm oil, so he will open an account next year.",
-    answers: ["population","develop","products"],
-    hints: ["starts with 'p' · the number of people living in a place","starts with 'd' · grow and make progress","starts with 'p' · things that are made to be sold"] }
-];
-const ALL_ANSWERS = SENTENCES.flatMap(s => s.answers);
-const BANK_WORDS = [...ALL_ANSWERS].sort(() => Math.random() - .5);
-
-/* ================= SCREENS ================= */
-function showScreen(name){
-  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));
-  document.getElementById('scr-'+name).classList.add('on');
-  window.scrollTo(0,0);
-  if(name==='level2') checkVoiceSupport();
-}
-
-/* ================= LEVEL 1 ================= */
-const inputs = [];
-let hintsOn = false;
-
-function buildStep1(){
-  const story = document.getElementById('story');
-  let gi = 0;
-  SENTENCES.forEach((s, si) => {
-    const p = document.createElement('div');
-    const parts = s.text.split(/\{\d+\}/);
-    p.style.marginTop = si ? '10px' : '0';
-    parts.forEach((chunk, ci) => {
-      p.appendChild(document.createTextNode(chunk));
-      if (ci < s.answers.length){
-        const span = document.createElement('span');
-        span.className = 'blank';
-        const inp = document.createElement('input');
-        inp.setAttribute('autocapitalize','off'); inp.setAttribute('autocomplete','off');
-        inp.dataset.idx = gi; inp.placeholder = '('+ (gi+1) +')';
-        inp.addEventListener('input', ()=>liveCheck(+inp.dataset.idx));
-        inp.addEventListener('keydown', e=>{ if(e.key==='Enter'){ e.preventDefault(); liveCheck(+inp.dataset.idx); }});
-        span.appendChild(inp);
-        p.appendChild(span);
-        inputs.push({el:inp, idx:gi});
-        gi++;
-      }
-    });
-    story.appendChild(p);
-  });
-  const bank = document.getElementById('bank');
-  BANK_WORDS.forEach(w=>{
-    const c = document.createElement('span');
-    c.className='chip'; c.textContent=w;
-    c.onclick=()=>fillChip(w,c);
-    bank.appendChild(c);
-  });
-  refreshLock();
-}
-function norm(w){ return w.toLowerCase().replace(/[^a-z]/g,''); }
-function firstUnsolved(){
-  for(const o of inputs){ if(!o.el.parentElement.classList.contains('ok')) return o.idx; }
-  return inputs.length;
-}
-function refreshLock(){
-  const fu=firstUnsolved();
-  inputs.forEach(o=>{
-    const sp=o.el.parentElement;
-    if(o.idx<fu){ o.el.readOnly=true; sp.classList.remove('locked'); }
-    else if(o.idx===fu){ o.el.readOnly=false; sp.classList.remove('locked'); }
-    else { o.el.readOnly=true; sp.classList.add('locked'); }
-  });
-}
-function liveCheck(i){
-  const o = inputs.find(x=>x.idx===i);
-  const v = o.el.value.trim();
-  const span = o.el.parentElement;
-  span.classList.remove('ok','bad');
-  if(!v) return;
-  const ans = norm(ALL_ANSWERS[i]);
-  if(norm(v)===ans){
-    span.classList.add('ok');
-    o.el.blur(); refreshLock(); moveNext(i); updateProgress();
-  } else if(norm(v).length>=ans.length){
-    span.classList.add('bad');
-    o.el.focus(); o.el.select();
-  }
-}
-function updateProgress(){
-  const n = inputs.filter(o=>o.el.parentElement.classList.contains('ok')).length;
-  document.getElementById('progress').innerHTML='Correct: <b>'+n+'</b> / 10'+(n===10?' 🎉 All correct! Try Level 2 now!':'');
-}
-function focusedBlank(){
-  const a=document.activeElement;
-  if(a && a.tagName==='INPUT' && a.parentElement.classList.contains('blank')) return +a.dataset.idx;
-  return -1;
-}
-function fillChip(w, chipEl){
-  const target = firstUnsolved();
-  if(target>=inputs.length) return;
-  const o = inputs.find(x=>x.idx===target);
-  o.el.value=w;
-  liveCheck(target);
-  if(chipEl && norm(w)===norm(ALL_ANSWERS[target])) chipEl.classList.add('used');
-}
-function moveNext(i){ const o=inputs.find(x=>x.idx===i+1); if(o) o.el.focus(); }
-function resetStep1(){
-  inputs.forEach(o=>{ o.el.value=''; o.el.parentElement.classList.remove('ok','bad'); });
-  document.querySelectorAll('.chip').forEach(c=>c.classList.remove('used'));
-  document.getElementById('progress').innerHTML='Correct: <b>0</b> / 10';
-  refreshLock();
-}
-buildStep1();
-
-/* ================= VOICE SUPPORT CHECK ================= */
-const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-const IN_WECHAT = /MicroMessenger|Weixin/i.test(navigator.userAgent);
-function voiceWarnMsg(){
-  if(IN_WECHAT){
-    return '⚠️ <b>Do NOT do the speaking part inside WeChat!</b> Voice scoring does not work here.<br>Please tap <b>"···" (top-right) → Open in Browser</b>, then choose <b>Safari</b> (iPhone) or <b>Chrome</b> (Android). The fill-in-the-blanks and ▶ Model buttons work here, though.';
-  }
-  if(!SR){
-    return '⚠️ Your browser does not support voice scoring. Please open this page in <b>Chrome</b> or <b>Edge</b>. The ▶ Model button still works.';
-  }
-  return '';
-}
-function checkVoiceSupport(){
-  const box=document.getElementById('warnBox');
-  const msg=voiceWarnMsg();
-  box.innerHTML=msg; box.className='warn'+(msg?' show':'');
-}
-checkVoiceSupport();
-document.getElementById('warnHome').innerHTML=voiceWarnMsg();
-if(voiceWarnMsg()) document.getElementById('warnHome').className='warn show';
-
-/* ================= LEVEL 2 ================= */
-let voices=[];
-function loadVoices(){
-  voices=speechSynthesis.getVoices().filter(v=>v.lang && v.lang.startsWith('en'));
-  const sel=document.getElementById('voiceSel');
-  sel.innerHTML='';
-  const score=v=>/natural/i.test(v.name)?0:/aria|jenny|guy|libby/i.test(v.name)?1:/google/i.test(v.name)?2:/samantha|daniel/i.test(v.name)?3:4;
-  voices.sort((a,b)=>score(a)-score(b)).forEach((v,i)=>{
-    const op=document.createElement('option'); op.value=v.name;
-    op.textContent=(i===0?'⭐ ':'')+v.name.replace(/Microsoft |Google /,'')+' ('+v.lang+')';
-    sel.appendChild(op);
-  });
-}
-speechSynthesis.onvoiceschanged=loadVoices; loadVoices();
-
-function speakText(text){
-  speechSynthesis.cancel();
-  const u=new SpeechSynthesisUtterance(text);
-  const name=document.getElementById('voiceSel').value;
-  const v=voices.find(x=>x.name===name);
-  if(v) u.voice=v;
-  u.lang='en-US'; u.rate=parseFloat(document.getElementById('rateSel').value); u.pitch=1;
-  speechSynthesis.speak(u);
-}
-
-function fillBlanksInText(){
-  const wrap=document.getElementById('segWrap');
-  wrap.innerHTML='';
-  SENTENCES.forEach((s,si)=>{
-    const div=document.createElement('div'); div.className='seg'; div.id='seg'+si;
-    let html=s.text;
-    s.answers.forEach((a,k)=>{ html=html.replace('{'+ALL_ANSWERS.indexOf(a)+'}', '<b>'+a+'</b>'); });
-    div.innerHTML='<div class="stext" id="stext'+si+'"><b>S'+(si+1)+'.</b> '+html+'</div>'+
-      '<div class="segbtns">'+
-      '<button class="btn-sm btn-play" onclick="playModel('+si+')">▶ Model</button>'+
-      '<button class="btn-sm btn-rec" id="rec'+si+'" onclick="toggleRec('+si+')">🎤 Read &amp; Score</button>'+
-      '</div><div class="sresult" id="res'+si+'"></div>';
-    wrap.appendChild(div);
-  });
-  checkAllDone();
-}
-
-/* ---- AI scoring (word-level LCS) ---- */
-function normText(t){ return t.toLowerCase().replace(/[’']/g,'').replace(/[^a-z0-9 ]/g,' ').replace(/\s+/g,' ').trim(); }
-function scoreText(target, heard){
-  const T=normText(target).split(' '), H=normText(heard).split(' ');
-  const m=T.length,n=H.length;
-  const dp=Array.from({length:m+1},()=>new Array(n+1).fill(0));
-  for(let i=1;i<=m;i++)for(let j=1;j<=n;j++)
-    dp[i][j]=T[i-1]===H[j-1]?dp[i-1][j-1]+1:Math.max(dp[i-1][j],dp[i][j-1]);
-  let missed=[],i=m,j=n;
-  while(i>0&&j>0){
-    if(T[i-1]===H[j-1]){i--;j--;}
-    else if(dp[i-1][j]>=dp[i][j-1]){missed.push(T[i-1]);i--;}
-    else j--;
-  }
-  while(i>0){missed.push(T[i-1]);i--;}
-  return {score:Math.round(dp[m][n]/m*100), missed:missed.reverse()};
-}
-let rec=null, recIdx=-1;
-async function warmUpMic(){
-  try{
-    if(navigator.mediaDevices && navigator.mediaDevices.getUserMedia){
-      const stream=await navigator.mediaDevices.getUserMedia({audio:true});
-      stream.getTracks().forEach(t=>t.stop());
-    }
-    return true;
-  }catch(e){ return false; }
-}
-async function toggleRec(si){
-  if(IN_WECHAT){
-    showRecMsg(si,'Voice scoring does not work inside WeChat. Tap "···" → Open in Browser, then use Safari or Chrome.');
-    return;
-  }
-  if(!SR){
-    showRecMsg(si,'Your browser does not support voice scoring. Please open this page in Chrome or Edge.');
-    return;
-  }
-  if(recIdx===si && rec){ rec.stop(); return; }
-  if(rec) rec.stop();
-  showRecMsg(si,'🎙️ Listening… read sentence S'+(si+1)+' clearly.');
-  const ok=await warmUpMic();
-  if(!ok && recIdx!==-99){
-    showRecMsg(si,'Microphone permission was denied. Please allow microphone access in your browser settings, then try again.');
-    return;
-  }
-  startRec(si);
-}
-function showRecMsg(si,html){
-  const resBox=document.getElementById('res'+si);
-  resBox.className='sresult show';
-  resBox.innerHTML='<span style="color:var(--orange);font-weight:700">'+html+'</span>';
-}
-function startRec(si){
-  recIdx=si;
-  const btn=document.getElementById('rec'+si);
-  btn.classList.add('recording'); btn.textContent='🔴 Listening… tap to stop';
-  rec=new SR();
-  rec.lang='en-US'; rec.interimResults=false; rec.continuous=true;
-  let heard='';
-  rec.onresult=e=>{ for(let k=e.resultIndex;k<e.results.length;k++) if(e.results[k].isFinal) heard+=e.results[k][0].transcript+' '; };
-  rec.onerror=e=>{ finishRec(si,heard,e.error); };
-  rec.onend=()=>finishRec(si,heard,'');
-  rec.start();
-}
-function finishRec(si,heard,err){
-  if(recIdx!==si) return;
-  recIdx=-1; rec=null;
-  const btn=document.getElementById('rec'+si);
-  btn.classList.remove('recording'); btn.textContent='🎤 Read & Score';
-  const resBox=document.getElementById('res'+si);
-  if(!heard.trim()){
-    let tip='No voice detected — move closer to the microphone and try again.';
-    if(err==='service-not-allowed'||err==='not-allowed')
-      tip='Microphone access is blocked. Allow the microphone for this site in your browser settings, then try again.';
-    else if(err==='network')
-      tip='Speech service network error — check your internet connection and try again.';
-    resBox.innerHTML='<span style="color:var(--bad);font-weight:700">'+tip+'</span>';
-    return;
-  }
-  const target=SENTENCES[si].text.replace(/\{\d+\}/g,m=>ALL_ANSWERS[+m.slice(1,-1)]);
-  const r=scoreText(target,heard);
-  renderResult(si,r,heard);
-  checkAllDone();
-}
-function renderResult(si,r,heard){
-  const resBox=document.getElementById('res'+si);
-  let stars=r.score>=90?'⭐⭐⭐':r.score>=75?'⭐⭐':r.score>=60?'⭐':'';
-  let comment=r.score>=90?'Excellent pronunciation!':r.score>=75?'Good job! Practice the red words a little more.':r.score>=60?'Not bad! Pay attention to the marked words.':'Listen to the Model first, then read it slowly again.';
-  let missHtml='';
-  if(r.missed.length) missHtml='<br><b>Words to improve:</b> '+r.missed.slice(0,10).map(w=>'<span style="color:var(--bad);font-weight:800">'+w+'</span>').join(' · ');
-  resBox.innerHTML='<b style="color:var(--orange)">S'+(si+1)+' Score: '+r.score+' '+stars+'</b><br>'+comment+missHtml+
-    '<br><span style="color:var(--sub);font-size:12.5px">Heard: '+heard2escape(heard||'')+'</span>';
-  const st=document.getElementById('stext'+si);
-  r.missed.forEach(w=>{
-    const re=new RegExp('\\b('+w.replace(/[^a-z0-9]/gi,'')+')\\b','ig');
-    st.innerHTML=st.innerHTML.replace(re,'<miss>$1</miss>');
-  });
-  resBox.dataset.score=r.score;
-}
-function heard2escape(s){ return s.replace(/</g,'&lt;'); }
-function checkAllDone(){
-  const scores=[0,1,2].map(si=>{
-    const b=document.getElementById('res'+si);
-    return b&&b.dataset.score?+b.dataset.score:null;
-  });
-  const done=scores.filter(s=>s!==null);
-  if(done.length===3){
-    const avg=Math.round(done.reduce((a,b)=>a+b,0)/3);
-    const stars=avg>=90?'⭐⭐⭐':avg>=75?'⭐⭐':avg>=60?'⭐':'';
-    document.getElementById('totalBox').classList.add('show');
-    document.getElementById('totalScore').textContent=avg;
-    document.getElementById('totalStars').textContent=stars||'💪';
-    document.getElementById('totalMsg').innerHTML=
-      avg>=90?'Perfect reading! You could teach this class! 🎉':avg>=75?'Well done! One more round with the Model will make it perfect.':avg>=60?'Good try! Listen to the Model and watch the red words.':"Don't give up — listen to the Model twice, then challenge again!";
-  }
-}
-function resetScores(){
-  fillBlanksInText();
-  document.getElementById('totalBox').classList.remove('show');
-}
-function playModel(si){
-  const target=SENTENCES[si].text.replace(/\{\d+\}/g,m=>ALL_ANSWERS[+m.slice(1,-1)]);
-  speakText(target);
-}
-fillBlanksInText();
-</script>
+  <script>
+    (function () {
+      var isPhone = window.matchMedia("(max-width: 760px)").matches &&
+                    ("ontouchstart" in window || navigator.maxTouchPoints > 0);
+      var target = document.getElementById(isPhone ? "card-mobile" : "card-desktop");
+      if (!target) { return; }
+      var badge = document.createElement("span");
+      badge.className = "badge";
+      badge.textContent = "RECOMMENDED FOR YOU";
+      target.appendChild(badge);
+    })();
+  </script>
 </body>
 </html>

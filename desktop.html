@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#0E7490">
+<title>Hainan Duty-Free Challenge · Desktop</title>
+<link rel="stylesheet" href="assets/desktop.css">
+</head>
+<body>
+  <span class="float-emoji" style="top:7%;left:4%;">🌴</span>
+  <span class="float-emoji" style="top:12%;right:6%;animation-delay:1.5s;">🛍️</span>
+  <span class="float-emoji" style="bottom:22%;left:7%;animation-delay:3s;">✈️</span>
+  <span class="float-emoji" style="bottom:28%;right:5%;animation-delay:4.5s;">🥥</span>
+  <svg class="waves" viewBox="0 0 1440 120" preserveAspectRatio="none">
+    <path d="M0,60 C240,110 480,10 720,50 C960,90 1200,20 1440,60 L1440,120 L0,120 Z" fill="#7DD3FC"/>
+    <path d="M0,80 C260,120 520,40 760,70 C1000,100 1240,50 1440,85 L1440,120 L0,120 Z" fill="#BAE6FD" opacity=".8"/>
+  </svg>
+
+  <div class="app">
+    <!-- ===== home / level select ===== -->
+    <section class="card" id="screen-home">
+      <div class="home-head">
+        <h1>Hainan Duty-Free Challenge 🌴</h1>
+        <div class="subtitle">Offshore Duty-Free Shopping Policy · Reading Challenge</div>
+        <div class="rule">
+          Wrong answers won't reveal the answer — keep trying until you get it right.
+          Only a <b>first-try correct answer</b> earns a point.
+        </div>
+      </div>
+      <div id="level-list"></div>
+      <div class="home-foot">
+        <button class="btn btn-ghost btn-sm" id="btn-read-home" type="button">📖 Read the Text</button>
+        <a class="ver-switch" href="index.html">Switch to phone version</a>
+      </div>
+    </section>
+
+    <!-- ===== quiz ===== -->
+    <section class="card hidden" id="screen-quiz">
+      <div class="quiz-top" id="quiz-top">
+        <button class="chip chip-home" id="btn-home-quiz" type="button">🏠 Home</button>
+        <span class="chip chip-level" id="lv-tag">Level 1</span>
+        <span class="chip chip-count" id="count-tag">Q1 / 9</span>
+        <span class="chip chip-score">⭐ <span id="score-now">0</span> / <span id="total-now">9</span></span>
+        <button class="chip chip-read" id="btn-read-quiz" type="button">📖 Read the Text</button>
+      </div>
+      <div class="progress"><div id="progress-fill"></div></div>
+      <div class="q-text" id="q-text"></div>
+      <div id="opt-area"></div>
+      <div id="feedback-area"></div>
+      <div class="next-row">
+        <button class="btn btn-teal hidden" id="btn-next" type="button">Next ➜</button>
+      </div>
+    </section>
+
+    <!-- ===== level summary ===== -->
+    <section class="card hidden" id="screen-sum">
+      <div class="sum-head">
+        <div class="sum-emoji" id="sum-emoji">🎉</div>
+        <div class="sum-title" id="sum-title"></div>
+        <div class="sum-sub" id="sum-sub"></div>
+        <div class="sum-stars" id="sum-stars"></div>
+        <div class="sum-total" id="sum-total"></div>
+      </div>
+      <div class="review" id="review"></div>
+      <div class="result-btns">
+        <button class="btn btn-ghost btn-sm" id="btn-home-sum" type="button">🏠 Home</button>
+        <button class="btn btn-ghost btn-sm" id="btn-read-sum" type="button">📖 Read the Text</button>
+        <button class="btn btn-ghost btn-sm" id="btn-retry-lv" type="button">🔄 Retry This Level</button>
+        <button class="btn btn-teal btn-sm" id="btn-to-levels" type="button">🗺️ Choose Another Level</button>
+        <button class="btn btn-primary" id="btn-next-lv" type="button">Next Level ➜</button>
+      </div>
+    </section>
+  </div>
+
+  <!-- ===== reading modal ===== -->
+  <div class="modal-mask hidden" id="read-modal">
+    <div class="modal">
+      <div class="modal-head">
+        <h2>📖 The Text — Hainan Offshore Duty-Free Shopping Policy</h2>
+        <button class="modal-close" id="btn-close-modal" type="button">Close ✕</button>
+      </div>
+      <div class="modal-body">
+        <p><b>Hainan's offshore duty-free shopping policy</b>, officially launched in <b>2011</b>, has gradually become an important driver of the province's economic development. The annual offshore duty-free shopping quota for each eligible traveler in Hainan is <b>100,000 yuan</b>. New methods for picking up duty-free goods introduced in <b>2023</b>, such as <b>"buy and pick-up"</b> and <b>"guaranteed pick-up,"</b> have further enhanced convenience and optimized the overall shopping experience.</p>
+        <p>One major impact of the policy is its ability to <b>attract more visitors and encourage consumption</b> in Hainan. With a wider range of duty-free products and more convenient shopping services, Hainan has strengthened its appeal as an <b>international tourism and consumption destination</b>. The policy also helps <b>bring some overseas consumption back to the domestic market</b>. As more visitors come to Hainan to travel and shop, <b>tourism can drive shopping, while shopping can in turn stimulate tourism</b>. This interaction supports the growth of tourism, hospitality, retail, and other consumer-related sectors.</p>
+        <p>The policy has also created opportunities for <b>related industries</b>. New services like <b>drone deliveries</b> of duty-free goods and streamlined customs procedures are encouraging the development of sectors such as the <b>low-altitude economy, smart logistics, and cross-border e-commerce</b>. In this way, duty-free shopping generates benefits that extend beyond the retail sector and contributes to broader industrial development.</p>
+        <p>At the same time, <b>effective regulation</b> is essential to the sustainable development of the duty-free market. Hainan regulates the market, cracks down on illegal activities such as <b>reselling duty-free goods</b> and <b>using other people's duty-free shopping quotas</b> to make purchases, and imposes penalties on <b>tax evasion</b>. These measures help prevent policy abuse and maintain a fair and orderly market environment.</p>
+        <p>Overall, the offshore duty-free shopping policy does more than make shopping more convenient. By connecting <b>tourism, consumption, and related industries</b>, it contributes to Hainan's development as an <b>international tourism and consumption center</b> and supports the continued growth of the <b>Hainan FTP</b>.</p>
+      </div>
+    </div>
+  </div>
+
+  <script>window.GAME_MODE = "desktop";</script>
+  <script src="assets/game.js"></script>
+</body>
+</html>
